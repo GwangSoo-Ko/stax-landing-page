@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAX: Invest-TI 투자 성향 진단</title>
+    <meta name="description" content="20개의 질문으로 나만의 투자 동물을 찾아보세요. AI가 분석하는 맞춤형 투자 전략까지!">
+    <meta property="og:title" content="STAX: 내 안의 투자 본능을 깨워보세요">
+    <meta property="og:description" content="20문항으로 알아보는 투자 성향 진단 - 나와 닮은 투자 동물은?">
+    <meta property="og:type" content="website">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
+        #app-container {
+            max-width: 480px; margin: 0 auto; min-height: 100vh; background: white;
+            position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.05);
+            overflow-x: hidden; display: flex; flex-direction: column;
+        }
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .slide-up { animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .float { animation: float 3s ease-in-out infinite; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .btn-option:active { transform: scale(0.98); background-color: #f1f5f9; border-color: #2563eb; }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        .footer-copy { padding: 2rem 0; text-align: center; font-size: 0.75rem; color: #cbd5e1; letter-spacing: 0.05em; font-weight: 500; }
+        .btn-submit-loading { pointer-events: none; opacity: 0.7; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+
+        <!-- HEADER -->
+        <header class="h-14 bg-white/90 backdrop-blur-md border-b border-gray-100 flex items-center justify-center sticky top-0 z-40">
+            <h1 class="font-black text-xl tracking-tighter text-blue-600 cursor-pointer" onclick="location.reload()">STAX</h1>
+        </header>
+
+        <!-- 1. START SCREEN -->
+        <div id="start-screen" class="flex-1 flex flex-col justify-center p-8 text-left fade-in bg-white">
+            <div class="mb-8 pop-in" style="animation-delay: 0.1s;">
+                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-blue-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                </div>
+                <span class="text-blue-600 font-bold text-sm tracking-wider uppercase">Invest-TI Analysis</span>
+            </div>
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-6 leading-tight pop-in" style="animation-delay: 0.2s;">
+                내 안의<br>투자 본능을<br>깨워보세요.
+            </h1>
+            <div class="space-y-6 mb-12 pop-in" style="animation-delay: 0.3s;">
+                <p class="text-gray-500 text-lg leading-relaxed">20개의 질문으로 당신의 투자 성향을<br>정밀하게 분석해 드립니다.</p>
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center text-gray-600 text-sm"><span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3"></span>나와 닮은 투자 동물 찾기</div>
+                    <div class="flex items-center text-gray-600 text-sm"><span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3"></span>나와 비슷한 투자 거인 매칭</div>
+                    <div class="flex items-center text-gray-600 text-sm"><span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3"></span>AI 맞춤형 투자 전략 제안</div>
+                </div>
+            </div>
+            <div class="mt-auto pop-in" style="animation-delay: 0.4s;">
+                <button onclick="startQuiz()" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-bold text-lg shadow-xl hover:bg-gray-800 transition active:scale-95 flex items-center justify-center gap-2">
+                    진단 시작하기
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </button>
+            </div>
+            <div class="footer-copy">&copy; 2026 STAX</div>
+        </div>
+
+        <!-- 2. QUIZ SCREEN -->
+        <div id="quiz-screen" class="hidden flex-1 flex flex-col bg-white h-screen">
+            <div class="px-6 py-4 bg-white z-20 sticky top-0">
+                <div class="flex justify-between items-center mb-2">
+                    <button id="prev-btn" onclick="prevQuestion()" class="text-xs font-bold text-gray-400 hover:text-blue-600 flex items-center gap-1 transition-colors invisible">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>이전으로
+                    </button>
+                    <div class="text-xs font-bold text-gray-400"><span id="progress-text" class="text-blue-600">Q1</span> / 20</div>
+                </div>
+                <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-full w-[5%] transition-all duration-300 ease-out"></div>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 pb-24 scroll-smooth">
+                <div class="w-full aspect-video bg-gray-100 rounded-2xl mb-6 overflow-hidden shadow-sm relative group border border-gray-100">
+                    <div id="q-loader" class="absolute inset-0 skeleton z-0"></div>
+                    <img id="q-image" src="" alt="Question Context"
+                         onload="document.getElementById('q-loader').style.display='none'; this.style.opacity='1'"
+                         onerror="this.src='https://placehold.co/800x450?text=STAX'; document.getElementById('q-loader').style.display='none'; this.style.opacity='1';"
+                         class="w-full h-full object-cover transition-opacity duration-500 opacity-0 relative z-10">
+                </div>
+                <h2 id="q-text" class="text-xl font-bold text-gray-900 mb-8 leading-snug break-keep fade-in">로딩 중...</h2>
+                <div class="space-y-3 fade-in">
+                    <button onclick="nextQuestion('A')" class="btn-option w-full border border-gray-200 bg-white p-5 rounded-2xl text-left hover:border-blue-500 hover:shadow-md transition-all group">
+                        <div class="flex items-start">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center mr-3 text-[10px] font-bold group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white transition-colors">A</span>
+                            <span id="opt-a" class="text-gray-700 font-medium text-sm leading-relaxed group-hover:text-gray-900">답변 A</span>
+                        </div>
+                    </button>
+                    <button onclick="nextQuestion('B')" class="btn-option w-full border border-gray-200 bg-white p-5 rounded-2xl text-left hover:border-blue-500 hover:shadow-md transition-all group">
+                        <div class="flex items-start">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center mr-3 text-[10px] font-bold group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white transition-colors">B</span>
+                            <span id="opt-b" class="text-gray-700 font-medium text-sm leading-relaxed group-hover:text-gray-900">답변 B</span>
+                        </div>
+                    </button>
+                </div>
+                <div class="footer-copy">&copy; 2026 STAX</div>
+            </div>
+        </div>
+
+        <!-- 3. LOADING SCREEN -->
+        <div id="loading-screen" class="hidden absolute inset-0 z-50 bg-blue-600 flex flex-col items-center justify-center text-white fade-in">
+            <div class="w-24 h-24 mb-6 rounded-full bg-white/20 p-4 animate-bounce">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-full h-full text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59" /></svg>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">데이터 분석 중...</h2>
+            <div id="loading-msg" class="text-blue-100 text-sm font-medium opacity-80">투자 성향을 분석하고 있습니다</div>
+        </div>
+
+        <!-- 4. RESULT SCREEN -->
+        <div id="result-screen" class="hidden flex-1 bg-gray-50 overflow-y-auto w-full">
+            <div class="bg-white rounded-b-[2.5rem] shadow-lg pb-10 pt-8 px-6 text-center relative z-10 slide-up">
+                <span class="inline-block bg-blue-50 text-blue-600 border border-blue-100 px-3 py-1 rounded-full text-xs font-bold mb-5 uppercase">My Animal Type</span>
+                <h1 id="res-mbti" class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500 tracking-tighter mb-2">INTJ</h1>
+                <h2 id="res-title" class="text-2xl font-bold text-gray-800 mb-6 break-keep">냉철한 독수리</h2>
+                <div class="relative w-64 h-64 mx-auto mb-4 float">
+                    <div class="absolute inset-0 bg-blue-100 rounded-full blur-3xl opacity-50 transform scale-75 translate-y-4"></div>
+                    <img id="res-img" src="" class="w-full h-full object-contain relative z-10 drop-shadow-xl" alt="Animal Persona">
+                </div>
+                <p id="res-desc" class="text-gray-600 leading-relaxed font-medium break-keep mb-8 text-sm px-4">분석 완료!</p>
+                <div class="relative w-full aspect-square max-w-[280px] mx-auto bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
+                     <h3 class="text-xs font-bold text-gray-400 uppercase mb-4 text-center tracking-wider">Investment Stat</h3>
+                     <canvas id="radarChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-5 slide-up" style="animation-delay: 0.2s;">
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Celebrity Match</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="w-20 h-20 rounded-full overflow-hidden shadow-md flex-shrink-0 bg-gray-100 border-2 border-white relative">
+                            <div class="absolute inset-0 skeleton z-0"></div>
+                            <img id="celeb-img" src="" class="w-full h-full object-cover relative z-10" onload="this.previousElementSibling.style.display='none'">
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs text-blue-600 font-bold mb-0.5">나와 비슷한 투자 거인</p>
+                            <p id="celeb-name" class="text-xl font-bold text-gray-900 leading-none mb-1">워렌 버핏</p>
+                            <p id="celeb-desc" class="text-xs text-gray-500 mb-2">"가치 투자의 대가"</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-50">
+                        <p id="celeb-reason" class="text-sm text-gray-600 leading-relaxed text-justify break-keep">매칭 완료!</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                        <div class="text-2xl mb-2">💎</div>
+                        <h4 class="font-bold text-blue-900 text-sm mb-1">투자 강점</h4>
+                        <p id="res-good" class="text-xs text-blue-700 leading-snug break-keep">강점 설명</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
+                        <div class="text-2xl mb-2">⚡</div>
+                        <h4 class="font-bold text-red-900 text-sm mb-1">주의할 점</h4>
+                        <p id="res-bad" class="text-xs text-red-700 leading-snug break-keep">주의점 설명</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 text-white p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h3 class="text-sm font-bold text-gray-400 mb-3 uppercase tracking-widest border-b border-gray-700 pb-3">AI Recommended</h3>
+                        <ul id="res-strategy" class="space-y-3 text-sm font-medium"></ul>
+                    </div>
+                    <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-blue-600 rounded-full blur-3xl opacity-30"></div>
+                </div>
+
+                <!-- STAX PROMOTION + SURVEY + PRE-REGISTRATION -->
+                <div id="stax-promotion" class="mt-8">
+                    <div class="bg-gradient-to-br from-indigo-900 via-gray-900 to-black rounded-[2.5rem] p-8 text-white shadow-2xl relative border border-white/5 overflow-hidden">
+                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500 rounded-full blur-[80px] opacity-30"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="bg-blue-600 text-[10px] font-black px-2.5 py-1 rounded-full text-white tracking-widest uppercase">PO Insights</span>
+                                <span class="text-blue-400 text-[10px] font-bold animate-pulse">● STAX MISSION</span>
+                            </div>
+                            <h3 id="survey-main-title" class="text-2xl font-black leading-tight mb-4">
+                                자, 이제 당신의<br><span class="underline decoration-blue-500 underline-offset-4 text-blue-50">소비 DNA</span>를 캐볼까요? 🔎
+                            </h3>
+                            <div id="survey-box" class="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-inner">
+                                <div class="flex justify-between items-center mb-5">
+                                    <p id="survey-step-title" class="text-sm font-bold flex items-center gap-2">
+                                        <span class="text-xl">📊</span> 1분 심층 설문 (<span id="s-progress">1</span>/10)
+                                    </p>
+                                    <div class="w-16 h-1 bg-white/10 rounded-full overflow-hidden">
+                                        <div id="s-progress-bar" class="w-[10%] h-full bg-blue-500 transition-all"></div>
+                                    </div>
+                                </div>
+                                <div id="survey-questions-container"></div>
+                                <div id="s-cta" class="space-y-6 hidden">
+                                    <div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30">
+                                        <p class="text-[11px] text-blue-300 font-bold mb-1">참여해주셔서 감사합니다!</p>
+                                        <p class="text-xl text-yellow-400 font-black tracking-tighter">오픈 보너스 1,000 STACK 💰</p>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <input type="tel" id="user-phone" placeholder="010-0000-0000" class="w-full bg-white/10 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" autocomplete="tel">
+                                        <label class="flex items-start gap-3 cursor-pointer group">
+                                            <div class="relative flex items-center mt-0.5">
+                                                <input type="checkbox" id="privacy-consent" class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-white/20 bg-white/5 transition-all checked:bg-blue-600 checked:border-blue-600">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 absolute text-white opacity-0 peer-checked:opacity-100 left-0.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                            </div>
+                                            <span class="text-[11px] text-gray-400 leading-snug group-hover:text-gray-300 transition-colors">
+                                                [필수] <strong>개인정보 수집 및 이용</strong>에 동의합니다.<br>
+                                                <span class="opacity-60">(수집항목: 휴대폰 번호 / 목적: 출시 알림 및 포인트 지급 / 보유기간: 서비스 출시 후 1년)</span>
+                                            </span>
+                                        </label>
+                                        <button id="submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 py-4 rounded-2xl text-sm font-black hover:bg-blue-700 transition-all shadow-lg active:scale-95">
+                                            출시 알림받고 포인트 적립
+                                        </button>
+                                    </div>
+                                    <p id="validation-msg" class="text-[10px] text-red-400 text-center hidden font-bold">체크박스에 동의해주세요!</p>
+                                </div>
+                            </div>
+                            <div id="survey-done" class="hidden bg-blue-600/10 backdrop-blur-md rounded-3xl p-8 border border-blue-500/30 text-center py-12">
+                                <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-600/20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-8 h-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                </div>
+                                <h4 class="font-black text-2xl text-white mb-2">예약 완료! 🚀</h4>
+                                <p class="text-sm text-gray-400 leading-relaxed">STAX의 첫 번째 유저가 되어주셔서 감사해요.<br><span class="text-blue-400 font-bold">1,000 Stack</span>이 적립 예약되었습니다.</p>
+                                <p id="total-count" class="text-xs text-gray-500 mt-4"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-4">
+                    <button onclick="shareResult()" class="flex-1 py-4 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl shadow-sm hover:bg-gray-50 transition">결과 공유</button>
+                    <button onclick="location.reload()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition">다시 하기</button>
+                </div>
+                <div class="footer-copy">&copy; 2026 STAX</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800/90 backdrop-blur text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 text-sm font-bold">복사되었습니다!</div>
+
+    <!-- MESSAGE BOX -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6 hidden">
+        <div class="bg-white rounded-[2rem] p-8 w-full max-w-sm text-center shadow-2xl pop-in">
+            <div id="modal-icon" class="text-4xl mb-4">⚠️</div>
+            <h4 id="modal-title" class="text-lg font-black text-gray-900 mb-2">확인 필요</h4>
+            <p id="modal-msg" class="text-sm text-gray-500 leading-relaxed mb-6">내용</p>
+            <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition active:scale-95">확인</button>
+        </div>
+    </div>
+
+<script>
+// ============================================================
+// ★★★ 여기에 Google Apps Script 웹앱 URL을 붙여넣으세요 ★★★
+// ============================================================
+const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+// 예시: "https://script.google.com/macros/s/AKfycbx.../exec"
+// ============================================================
+
+const questionBaseUrl = "https://raw.githubusercontent.com/Sungbo-Sim/STAX_Image/main/question_images/";
+const animalBaseUrl = "https://raw.githubusercontent.com/Sungbo-Sim/STAX_Image/main/question_images/";
+const questionImages = Array.from({length: 20}, (_, i) => `${questionBaseUrl}question_${String(i + 1).padStart(2, '0')}.jpg`);
+
+const questions = [
+    { q: "친구들이 단톡방에 '야, A주식 대박이래!'라고 했다. 나의 반응은?", A: { t: "오 진짜? 왜? 뉴스 찾아보고 친구들이랑 얘기한다.", type: "E" }, B: { t: "'또 시작이네...' (혼자 조용히 검색해본다)", type: "I" } },
+    { q: "투자 공부를 시작하려고 한다. 선호하는 방식은?", A: { t: "유튜브 라이브나 스터디 모임! 같이 떠들면서 배운다.", type: "E" }, B: { t: "서점에 가서 베스트셀러나 전문 서적을 사서 혼자 읽는다.", type: "I" } },
+    { q: "투자 앱을 켰을 때 가장 먼저 눈이 가는 곳은?", A: { t: "실시간 인기 검색어 / 시끌벅적한 종목 토론방", type: "E" }, B: { t: "조용한 나의 자산 현황 / 찜해둔 관심 종목", type: "I" } },
+    { q: "내가 모르는 종목을 사게 된다면 이유는?", A: { t: "유명한 유튜버나 믿을만한 친구가 좋다고 해서", type: "E" }, B: { t: "내가 혼자 분석해봤는데 데이터가 좋아 보여서", type: "I" } },
+    { q: "주식 시장이 폭락해서 우울하다. 이때 나는?", A: { t: "친구들을 만나서 '한강 가자' 농담하며 스트레스를 푼다.", type: "E" }, B: { t: "아무도 만나기 싫다. 혼자 방에서 계좌를 보며 생각한다.", type: "I" } },
+    { q: "기업을 평가할 때 더 믿음이 가는 것은?", A: { t: "당장 눈에 보이는 실적(매출, 이익)과 차트의 움직임", type: "S" }, B: { t: "이 회사가 꿈꾸는 비전과 10년 뒤 바뀔 세상", type: "N" } },
+    { q: "당신에게 더 매력적인 주식은?", A: { t: "내일 당장 수익을 낼 수 있는 확실한 주식 (치킨값 벌기)", type: "S" }, B: { t: "지금은 적자지만 나중에 10배 대박 날 수 있는 주식", type: "N" } },
+    { q: "주식 그래프(차트)를 볼 때 나의 시선은?", A: { t: "오늘 올랐나 내렸나? 현재 가격과 최근 움직임이 중요하다.", type: "S" }, B: { t: "전체적으로 우상향인가? 숲을 보며 거대한 흐름을 읽는다.", type: "N" } },
+    { q: "공돈 500만 원이 생겼다. 어디에 투자할까?", A: { t: "은행 이자보다 높고 안전한 '배당주'나 '채권'", type: "S" }, B: { t: "세상을 바꿀 'AI'나 '우주 산업' 같은 혁신 기업", type: "N" } },
+    { q: "경제 뉴스를 볼 때 더 관심이 가는 것은?", A: { t: "'금리가 0.25% 올랐습니다' (구체적인 숫자와 팩트)", type: "S" }, B: { t: "'앞으로 메타버스 시대가 온다' (미래의 변화와 의미)", type: "N" } },
+    { q: "내가 산 주식이 -5% 떨어졌다. 내 마음은?", A: { t: "(무표정) 미리 정해둔 기준(-5%)이니까 기계적으로 판다.", type: "T" }, B: { t: "(심쿵) '아니야... 다시 오를 거야' 희망을 가져본다.", type: "F" } },
+    { q: "주식이 많이 올라서 팔아야 할 때, 당신의 행동은?", A: { t: "목표한 금액이 되었으니 미련 없이 판다.", type: "T" }, B: { t: "'조금만 더...?' 욕심내다가 팔 타이밍을 놓친다.", type: "F" } },
+    { q: "투자에 실패했을 때 나는?", A: { t: "'진입 타이밍이 빨랐네.' 원인을 차갑게 분석한다.", type: "T" }, B: { t: "'아... 그때 사지 말걸 ㅠㅠ' 자책하며 이불 킥한다.", type: "F" } },
+    { q: "친구가 '주식으로 돈 다 날렸어'라고 슬퍼한다면?", A: { t: "얼마에 샀는데? 왜 떨어졌어? (상황 분석)", type: "T" }, B: { t: "헐 어떡해... 밥은 먹었어? 술 한잔하자. (위로)", type: "F" } },
+    { q: "나에게 주식이란?", A: { t: "자산을 불리기 위한 수단이자 숫자 게임.", type: "T" }, B: { t: "내가 좋아하는 기업과 함께 성장하는 가슴 뛰는 일.", type: "F" } },
+    { q: "월급날이다! 투자금 이체는 어떻게?", A: { t: "국내주식 40%, 미국주식 30%... 계획대로 딱딱 나눈다.", type: "J" }, B: { t: "'요즘 이게 핫하대!' 그때그때 끌리는 곳에 넣는다.", type: "P" } },
+    { q: "주식 계좌에 현금이 남아있다면?", A: { t: "혹시 모를 하락장을 대비해 현금 비중을 꼭 남겨둔다.", type: "J" }, B: { t: "현금 놀리는 꼴 못 본다. 남은 돈으로 뭐라도 사야 한다.", type: "P" } },
+    { q: "나의 주식 바구니(포트폴리오) 스타일은?", A: { t: "계란을 나눠 담아야지! 10개 이상 골고루 분산 투자.", type: "J" }, B: { t: "'인생 한 방!' 확신이 드는 1~3개 종목에 집중 투자.", type: "P" } },
+    { q: "여행 가서 주식 창을 얼마나 보는가?", A: { t: "미리 주문을 걸어뒀으니, 알람 울릴 때만 확인한다.", type: "J" }, B: { t: "화장실, 밥 먹을 때, 이동할 때... 틈만 나면 시세 확인.", type: "P" } },
+    { q: "나의 투자의 최종 목표는?", A: { t: "매년 10%씩 꾸준히 불려서 50세에 은퇴하기 (계획적)", type: "J" }, B: { t: "초대박 종목 터뜨려서 내일 당장 사표 쓰기 (드라마틱)", type: "P" } }
+];
+
+const results = {
+    "INTJ": { title: "지혜로운 부엉이", desc: "감정은 사치! 밤에도 깨어 시장을 분석하는 냉철한 전략가입니다.", good: "흔들리지 않는 멘탈", bad: "타이밍만 재다가 놓침", celeb: "Charlie Munger", celebNameKr: "찰리 멍거", celebDesc: "버핏의 파트너", celebReason: "기업의 내재 가치를 꿰뚫어 보고 확신이 들 때까지 인내심 있게 기다립니다.", stats: [8, 4, 10, 3, 9], imgFile: "owl_01.jpg", strategy: ["퀀트 투자 (Quant)", "저평가 가치주 장기 보유"] },
+    "INTP": { title: "호기심 많은 고양이", desc: "숨겨진 보석을 찾아내는 데 탁월하지만 실행까지 고민이 많은 신중파입니다.", good: "남다른 통찰력", bad: "생각만 하다가 끝남", celeb: "Michael Burry", celebNameKr: "마이클 버리", celebDesc: "빅쇼트의 주인공", celebReason: "데이터만 믿고 'No'를 외칠 수 있는 분석력이 닮았습니다.", stats: [6, 5, 10, 5, 7], imgFile: "cat_01.jpg", strategy: ["가치 투자", "자산주"] },
+    "ENTJ": { title: "백수의 왕 사자", desc: "확신이 서면 과감하게 시장을 주도하는 리더입니다.", good: "과감한 실행력", bad: "자신감 과잉 몰빵", celeb: "George Soros", celebNameKr: "조지 소로스", celebDesc: "헤지펀드의 제왕", celebReason: "자신의 판단을 믿고 승부를 보는 승부사 기질이 닮았습니다.", stats: [2, 9, 8, 7, 5], imgFile: "lion_01.jpg", strategy: ["주도주 집중 투자", "성장 산업 대장주"] },
+    "ENTP": { title: "재치 있는 여우", desc: "위험해? 오히려 좋아! 남들과 반대로 갈 때 희열을 느끼는 역발상의 귀재입니다.", good: "위기 속 기회 포착", bad: "잦은 매매", celeb: "Ray Dalio", celebNameKr: "레이 달리오", celebDesc: "브리지워터 CEO", celebReason: "시장과의 논쟁을 즐기는 점이 닮았습니다.", stats: [3, 8, 7, 9, 4], imgFile: "fox_01.jpg", strategy: ["밈 주식(Meme)", "이벤트 드리븐"] },
+    "INFJ": { title: "고독한 늑대", desc: "주가가 떨어져도 기업의 비전과 신념을 믿고 끝까지 버티는 뚝심 있는 투자자입니다.", good: "장기적인 안목", bad: "강제 존버", celeb: "Cathie Wood", celebNameKr: "캐시 우드", celebDesc: "돈나무 언니", celebReason: "미래의 혁신성을 믿고 투자하는 선구자입니다.", stats: [5, 6, 4, 10, 10], imgFile: "wolf_01.jpg", strategy: ["ESG 투자", "혁신 기술주"] },
+    "INFP": { title: "사랑스러운 토끼", desc: "좋아하는 브랜드와 사랑에 빠지는 로맨티스트입니다.", good: "생활 속 투자 발견", bad: "희망회로 과다", celeb: "Peter Lynch", celebNameKr: "피터 린치", celebDesc: "월가의 영웅", celebReason: "일상 속 관찰을 중요시합니다.", stats: [6, 3, 4, 9, 8], imgFile: "rabbit_01.jpg", strategy: ["소비재 우량주", "팬덤 주식"] },
+    "ENFJ": { title: "친절한 골든리트리버", desc: "좋은 종목은 무조건 공유하는 따뜻한 투자자입니다.", good: "정보 수집과 공유", bad: "귀가 얇음", celeb: "John Bogle", celebNameKr: "존 보글", celebDesc: "인덱스 펀드 창시자", celebReason: "함께 성장하는 문화를 지향합니다.", stats: [7, 4, 5, 8, 6], imgFile: "golden_retriever_01.jpg", strategy: ["대형 우량주", "배당 귀족주"] },
+    "ENFP": { title: "자유로운 돌고래", desc: "호기심 넘치고 열정적인 몽상가형 투자자입니다.", good: "빠른 정보 습득", bad: "분위기 타다 고점 매수", celeb: "Jim Cramer", celebNameKr: "짐 크레이머", celebDesc: "매드머니 앵커", celebReason: "에너지가 넘치는 투자를 합니다.", stats: [2, 9, 3, 10, 2], imgFile: "dolphin_01.jpg", strategy: ["적립식 펀드", "로보어드바이저"] },
+    "ISTJ": { title: "성실한 비버", desc: "1원 한 푼 오차도 허용하지 않습니다. 철저한 계획으로 자산을 쌓습니다.", good: "철저한 원칙 준수", bad: "너무 보수적", celeb: "Warren Buffett", celebNameKr: "워렌 버핏", celebDesc: "투자의 신", celebReason: "잃지 않는 투자를 최우선으로 합니다.", stats: [10, 1, 9, 2, 9], imgFile: "beaver_01.jpg", strategy: ["국채/예적금", "저변동성 배당주"] },
+    "ISFJ": { title: "도토리 모으는 다람쥐", desc: "작고 소중한 배당금을 모으며 마음의 평화를 얻습니다.", good: "꾸준한 복리 효과", bad: "하락장 패닉", celeb: "Benjamin Graham", celebNameKr: "벤자민 그레이엄", celebDesc: "가치투자의 아버지", celebReason: "안전한 투자를 추구합니다.", stats: [10, 1, 8, 3, 7], imgFile: "squirrel_01.jpg", strategy: ["S&P500 ETF", "월 배당 리츠"] },
+    "ESTJ": { title: "우직한 곰", desc: "한번 정한 원칙은 끝까지 밀고 나가는 뚝심이 있습니다.", good: "목표 달성 능력", bad: "유연성 부족", celeb: "Jamie Dimon", celebNameKr: "제이미 다이먼", celebDesc: "JP모건 회장", celebReason: "체계적인 시스템을 선호합니다.", stats: [9, 3, 9, 2, 8], imgFile: "bear_01.jpg", strategy: ["자산배분", "인덱스 펀드"] },
+    "ESFJ": { title: "함께하는 펭귄", desc: "대세를 따를 때 가장 마음이 편안한 안정주의자입니다.", good: "안정적인 투자", bad: "주관 부족", celeb: "Peter Thiel", celebNameKr: "피터 틸", celebDesc: "페이팔 마피아", celebReason: "검증된 네트워크를 신뢰합니다.", stats: [8, 3, 6, 5, 6], imgFile: "penguin_01.jpg", strategy: ["시총 상위 10", "국민주"] },
+    "ISTP": { title: "날렵한 치타", desc: "오직 타이밍만 보고 순식간에 낚아채는 트레이더입니다.", good: "빠른 판단력", bad: "큰 흐름 놓침", celeb: "Jim Simons", celebNameKr: "짐 사이먼스", celebDesc: "퀀트 황제", celebReason: "수학적 분석을 신뢰합니다.", stats: [4, 8, 10, 2, 4], imgFile: "cheetah_01.jpg", strategy: ["시스템 트레이딩", "스캘핑"] },
+    "ISFP": { title: "감각적인 카멜레온", desc: "직관적으로 유연하게 변신하며 기회를 노립니다.", good: "동물적 감각", bad: "기분파 매매", celeb: "Jesse Livermore", celebNameKr: "제시 리버모어", celebDesc: "전설적인 매매가", celebReason: "본능으로 흐름을 감지합니다.", stats: [3, 7, 2, 10, 5], imgFile: "chameleon_01.jpg", strategy: ["엔터/패션주", "직관적 투자"] },
+    "ESTP": { title: "돌진하는 황소", desc: "인생은 한 방! 리스크를 즐기며 거침없이 돌진합니다.", good: "대담한 결단력", bad: "도박성", celeb: "Jordan Belfort", celebNameKr: "조던 벨포트", celebDesc: "월가의 늑대", celebReason: "야수성을 지녔습니다.", stats: [1, 10, 4, 8, 2], imgFile: "bull_01.jpg", strategy: ["레버리지 ETF", "급등주"] },
+    "ESFP": { title: "노는 게 좋은 판다", desc: "투자는 놀이지! 무한 긍정 왕 판다입니다.", good: "무한 긍정 마인드", bad: "텅장 주의", celeb: "Robert Kiyosaki", celebNameKr: "로버트 기요사키", celebDesc: "부자 아빠", celebReason: "돈의 흐름을 즐깁니다.", stats: [2, 6, 2, 8, 4], imgFile: "panda_01.jpg", strategy: ["잔돈 자동 투자", "소비 연동 투자"] }
+};
+
+const growthSurvey = [
+    { id: 1, dataKey: "userPersona", q: "현재 나의 '재테크 레벨'과 지갑 상황은 어떤가요? 🏦", opts: [ {t: "알바비/용돈 모아 티끌 태산", v: "Student"}, {t: "스쳐가는 월급... 카드값 막기 바쁜 직장인", v: "Newbie_Salaryman"}, {t: "숨만 쉬어도 돈 나가는 '가장'의 삶", v: "Parent_Salaryman"}, {t: "시드머니 장전 완료! 투자처 찾는 하이에나", v: "High_Involved"} ] },
+    { id: 2, dataKey: "spendingCategory", q: "만약 100만 원 공돈이 생기면 당장 달려갈 곳은? 🏃‍♂️", opts: [ {t: "최신형 아이폰/게임기부터 산다", v: "Tech"}, {t: "백화점/명품관/팝업스토어 오픈런", v: "Fashion"}, {t: "호캉스/오마카세 예약부터", v: "Experience"}, {t: "주식/코인 계좌로 바로 이체", v: "Investment"} ] },
+    { id: 3, dataKey: "mainPainPoint", q: "재테크를 시작하지 못하거나 실패했던 가장 큰 이유는? 🤔", opts: [ {t: "외계어 같은 경제 용어, 읽다 보면 잠이 옴 😴", v: "Difficulty"}, {t: "내 소중한 돈 잃을까 봐 무서움 😭", v: "Loss_Fear"}, {t: "당장 쓸 돈도 없는데 무슨 투자야 💸", v: "No_Seed"}, {t: "뭘 사야 할지 몰라 귀찮아서 미룸 🤔", v: "No_Information"} ] },
+    { id: 4, dataKey: "legacySolutionProblem", q: "평소 경제/금융 공부는 어떻게 하시나요? (솔직히!) 📺", opts: [ {t: "유튜브 등 영상 시청 (근데 너무 길어..)", v: "Long_Video"}, {t: "뉴스 기사/책 정독 (근데 작심삼일..)", v: "Text_Fatigue"}, {t: "주변 친구/지인에게 귀동냥 (불확실함)", v: "Uncertainty"}, {t: "솔직히... 거의 안 함 (포기 상태)", v: "No_Study"} ] },
+    { id: 5, dataKey: "stackingValidation", q: "아낀 커피값 5천원이 10년 뒤 1,800만원이 된다면 참으시겠어요? ☕", opts: [ {t: "당연하지! 오늘부터 바로 라떼 끊는다.", v: "Strong_Yes"}, {t: "오... 10년 뒤면 꽤 큰데? 가끔은 참을 듯.", v: "Yes"}, {t: "현재가 중요해! 난 욜로(YOLO) 할래.", v: "No"} ] },
+    { id: 6, dataKey: "contentFormatValidation", q: "매일 아침 '4컷 웹툰'으로 금융 상식을 배운다면 볼 의향은? 🎨", opts: [ {t: "웹툰이라면 무조건 봄! 꿀잼 보장되면 OK.", v: "Webtoon_Lover"}, {t: "퀴즈 풀고 포인트(돈) 주면 봄.", v: "Reward_Focus"}, {t: "그냥 핵심만 3줄 요약해줘.", v: "Efficiency_Focus"}, {t: "관심 없음.", v: "Ignore"} ] },
+    { id: 7, dataKey: "aiOracleValidation", q: "내 성향을 완벽히 아는 'AI 비서'가 조언해준다면 신뢰할까요? 🤖", opts: [ {t: "내 멘탈까지 케어해준다면 완전 의지할 듯!", v: "Full_Trust"}, {t: "참고용으로만 쓸 듯. 결정은 내가!", v: "Reference_Only"}, {t: "AI보다는 전문가 말이 더 믿음직스러움.", v: "Human_Trust"}, {t: "개인정보 털릴까 봐 좀 꺼려짐.", v: "Privacy_Fear"} ] },
+    { id: 8, dataKey: "socialFactorValidation", q: "투자, 혼자 하는 게 좋으세요? 같이 하는 게 좋으세요? 🤝", opts: [ {t: "조용히 혼자 수익 내고 싶음 (마이웨이)", v: "Solo"}, {t: "친구랑 내기하거나 랭킹 대결하고 싶음 (경쟁형)", v: "Competition"}, {t: "성향끼리 정보 공유하며 으쌰으쌰 (커뮤니티형)", v: "Collaborative"} ] },
+    { id: 9, dataKey: "mvpPriority", q: "STAX가 출시된다면 가장 먼저 써보고 싶은 기능은? 🚀", opts: [ {t: "내 돈의 미래 가치를 보여주는 [가상 투자]", v: "Virtual_Stacking"}, {t: "내 성향대로 상담해주는 [AI 오라클]", v: "AI_Oracle"}, {t: "금융 지식 쌓고 포인트 버는 [웹툰 & 퀴즈]", v: "Play_Finance"}, {t: "비슷한 투자 동물들과 함께하는 [길드]", v: "Social_Guild"} ] },
+    { id: 10, dataKey: "leadRetentionMagnet", q: "사전 예약하고 가장 받고 싶은 혜택은 무엇인가요? 🎁", opts: [ {t: "시작부터 앞서가는 [1,000 Stack 포인트]", v: "Monetary_Reward"}, {t: "내 성향 완벽 분석 [프리미엄 리포트]", v: "Analytic_Report"}, {t: "유료 멤버십 1개월 [무료 체험권]", v: "Subscription_Trial"}, {t: "출시 알림만 줘도 충분함", v: "Notification_Only"} ] }
+];
+
+// === STATE ===
+let currentStep = 0;
+let scores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+let choiceHistory = [];
+let sStep = 0;
+let sData = {};
+let currentMbtiType = "";
+let currentMbtiTitle = "";
+
+function startQuiz() {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const q = questions[currentStep];
+    document.getElementById('progress-text').innerText = `Q${currentStep + 1}`;
+    document.getElementById('progress-bar').style.width = `${((currentStep + 1) / questions.length) * 100}%`;
+    const prevBtn = document.getElementById('prev-btn');
+    if (currentStep > 0) prevBtn.classList.remove('invisible'); else prevBtn.classList.add('invisible');
+    const imgEl = document.getElementById('q-image');
+    const loader = document.getElementById('q-loader');
+    loader.style.display = 'block'; imgEl.style.opacity = '0';
+    imgEl.src = questionImages[currentStep];
+    imgEl.onload = () => { loader.style.display = 'none'; imgEl.style.opacity = '1'; };
+    document.getElementById('q-text').innerText = q.q;
+    document.getElementById('opt-a').innerText = q.A.t;
+    document.getElementById('opt-b').innerText = q.B.t;
+}
+
+function nextQuestion(choice) {
+    const q = questions[currentStep];
+    const selectedType = (choice === 'A') ? q.A.type : q.B.type;
+    scores[selectedType]++;
+    choiceHistory.push(selectedType);
+    currentStep++;
+    if (currentStep < questions.length) renderQuestion(); else showLoading();
+}
+
+function prevQuestion() {
+    if (currentStep > 0) {
+        currentStep--;
+        const lastType = choiceHistory.pop();
+        scores[lastType]--;
+        renderQuestion();
+    }
+}
+
+function showLoading() {
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('loading-screen').classList.remove('hidden');
+    setTimeout(showResult, 2500);
+}
+
+function showResult() {
+    const mbti = (scores.E >= scores.I ? 'E' : 'I') + (scores.S >= scores.N ? 'S' : 'N') + (scores.T >= scores.F ? 'T' : 'F') + (scores.J >= scores.P ? 'J' : 'P');
+    const data = results[mbti];
+    currentMbtiType = mbti;
+    currentMbtiTitle = data.title;
+
+    document.getElementById('res-mbti').innerText = mbti;
+    document.getElementById('res-title').innerText = data.title;
+    document.getElementById('res-desc').innerText = data.desc;
+    document.getElementById('res-good').innerText = data.good;
+    document.getElementById('res-bad').innerText = data.bad;
+    document.getElementById('res-img').src = animalBaseUrl + data.imgFile;
+    document.getElementById('celeb-img').src = `https://tse1.mm.bing.net/th?q=${encodeURIComponent(data.celeb + " investor portrait")}&w=200&h=200&c=7&rs=1&p=0`;
+    document.getElementById('celeb-name').innerText = data.celebNameKr;
+    document.getElementById('celeb-desc').innerText = `"${data.celebDesc}"`;
+    document.getElementById('celeb-reason').innerText = data.celebReason;
+    document.getElementById('res-strategy').innerHTML = data.strategy.map(s => `<li class="flex items-start"><span class="text-blue-400 mr-2 text-lg">\u2713</span> <span>${s}</span></li>`).join('');
+
+    document.getElementById('loading-screen').classList.add('hidden');
+    document.getElementById('result-screen').classList.remove('hidden');
+    drawRadarChart(data.stats);
+    renderGrowthSurvey();
+}
+
+function renderGrowthSurvey() {
+    if (sStep < growthSurvey.length) {
+        const q = growthSurvey[sStep];
+        document.getElementById('s-progress').innerText = sStep + 1;
+        document.getElementById('s-progress-bar').style.width = `${((sStep + 1) / growthSurvey.length) * 100}%`;
+        let html = `<p class="text-xs text-blue-300 font-bold uppercase tracking-tight mb-4">${q.q}</p><div class="space-y-2">`;
+        q.opts.forEach(opt => {
+            html += `<button onclick="saveS('${q.dataKey}', '${opt.v}')" class="w-full py-3.5 bg-white/10 rounded-2xl text-xs font-bold hover:bg-blue-600 transition-all text-left px-5 border border-white/5 active:scale-95">${opt.t}</button>`;
+        });
+        html += `</div>`;
+        document.getElementById('survey-questions-container').innerHTML = html;
+        if(sStep === 2) document.getElementById('survey-main-title').innerHTML = "재테크가 젤 싫어!<br><span class='text-blue-400'>뭐가 젤 힘든가요?</span> \ud83d\ude2d";
+        if(sStep === 4) document.getElementById('survey-main-title').innerHTML = "STAX는 사실...<br><span class='text-blue-400'>이런걸 만들고 있어요</span> \ud83d\udc8e";
+        if(sStep === 8) document.getElementById('survey-main-title').innerHTML = "마지막!<br><span class='text-blue-400'>가장 기대되는 건?</span> \ud83d\ude80";
+    } else {
+        document.getElementById('survey-questions-container').classList.add('hidden');
+        document.getElementById('s-cta').classList.remove('hidden');
+        document.getElementById('s-cta').classList.add('slide-up');
+        document.getElementById('survey-step-title').innerHTML = "<span class='text-xl'>\ud83c\udf81</span> 보너스 혜택 당첨!";
+        document.getElementById('survey-main-title').innerHTML = "이제 곧 오픈!<br><span class='text-blue-400'>가장 먼저 만나요</span>";
+    }
+}
+
+function saveS(dataKey, val) { sData[dataKey] = val; sStep++; renderGrowthSurvey(); }
+
+// ============================================================
+// ★ Google Sheets 연동 제출 함수 ★
+// ============================================================
+async function finalSubmit() {
+    const phone = document.getElementById('user-phone').value.trim();
+    const consent = document.getElementById('privacy-consent').checked;
+    const submitBtn = document.getElementById('submit-btn');
+
+    if (!phone || phone.replace(/[^0-9]/g, '').length < 10) {
+        showModal("\ud83d\udca1 번호 확인", "휴대폰 번호를 정확히 입력해주세요.", "\u26a0\ufe0f");
+        return;
+    }
+    if (!consent) {
+        document.getElementById('validation-msg').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('validation-msg').classList.add('hidden');
+
+    // 버튼 로딩 상태
+    submitBtn.classList.add('btn-submit-loading');
+    submitBtn.innerHTML = '<span class="spinner"></span> 전송 중...';
+
+    const payload = {
+        phone: phone,
+        mbtiType: currentMbtiType,
+        mbtiTitle: currentMbtiTitle,
+        surveyData: sData,
+        userAgent: navigator.userAgent.substring(0, 200)
+    };
+
+    try {
+        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+        } else {
+            console.log("[STAX] Google Script URL 미설정. 데이터:", JSON.stringify(payload, null, 2));
+        }
+    } catch (err) {
+        console.error("[STAX] 전송 오류 (무시하고 진행):", err);
+    }
+
+    // 성공 UI 표시 (네트워크 오류와 무관하게)
+    document.getElementById('survey-box').classList.add('hidden');
+    document.getElementById('survey-done').classList.remove('hidden');
+    document.getElementById('survey-done').classList.add('pop-in');
+}
+
+function showModal(title, msg, icon) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-msg').innerText = msg;
+    document.getElementById('modal-icon').innerText = icon;
+    document.getElementById('custom-modal').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+
+function drawRadarChart(stats) {
+    const canvas = document.getElementById('radarChart');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr);
+    const w = rect.width, h = rect.height, cX = w/2, cY = h/2, r = Math.min(cX, cY) - 30;
+    const sides = 5, labels = ["\uc548\uc815", "\uacf5\uaca9", "\ub370\uc774\ud130", "\uc9c1\uad00", "\uc874\ubc84"];
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+    for(let l=1; l<=5; l++){
+        ctx.beginPath();
+        for(let i=0; i<sides; i++){
+            const a = (Math.PI*2*i)/sides - Math.PI/2;
+            const x = cX + (r/5)*l*Math.cos(a), y = cY + (r/5)*l*Math.sin(a);
+            if(i==0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.closePath(); ctx.stroke();
+    }
+    ctx.beginPath();
+    for(let i=0; i<sides; i++){
+        const a = (Math.PI*2*i)/sides - Math.PI/2;
+        const vR = (r/10)*stats[i];
+        const x = cX + vR*Math.cos(a), y = cY + vR*Math.sin(a);
+        if(i==0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath(); ctx.fillStyle = 'rgba(37,99,235,0.2)'; ctx.fill(); ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.font = 'bold 10px Pretendard'; ctx.fillStyle = '#64748b'; ctx.textAlign = 'center';
+    for(let i=0; i<sides; i++){
+        const a = (Math.PI*2*i)/sides - Math.PI/2;
+        ctx.fillText(labels[i], cX + (r+15)*Math.cos(a), cY + (r+15)*Math.sin(a));
+    }
+}
+
+function shareResult() {
+    const text = `\ud83d\udcca 나의 투자 동물은 "${currentMbtiTitle}" (${currentMbtiType})!\nSTAX에서 무료 투자 성향 진단 받아보세요 \ud83d\udc49`;
+    if (navigator.share) {
+        navigator.share({ title: 'STAX Invest-TI', text: text, url: window.location.href }).catch(() => copyToClipboard(text));
+    } else {
+        copyToClipboard(text);
+    }
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text + "\n" + window.location.href).then(() => showToast("\ubcf5\uc0ac\ub418\uc5c8\uc2b5\ub2c8\ub2e4!")).catch(() => showToast("\uacf5\uc720 \ub9c1\ud06c\ub97c \ubcf5\uc0ac\ud574\uc8fc\uc138\uc694"));
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.style.opacity = '1';
+    setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+}
+</script>
+</body>
+</html>
