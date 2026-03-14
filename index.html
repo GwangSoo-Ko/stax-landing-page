@@ -30,7 +30,16 @@
         .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
         .survey-opt { transition: all 0.15s; }
         .survey-opt:active { transform: scale(0.97); }
-        .survey-opt:hover { border-color: #2563eb; background: #eff6ff; }
+        @media (hover: hover) {
+            .survey-opt:hover { border-color: #2563eb; background: #eff6ff; }
+        }
+        @media (hover: hover) {
+            .quiz-btn:hover { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07); }
+            .quiz-btn:hover .qb-circle { background: #2563eb; border-color: #2563eb; color: white; }
+            .quiz-btn:hover .qb-text { color: #111827; }
+        }
+        .quiz-btn:active { transform: scale(0.98); }
+        .quiz-btn { transition: all 0.15s; }
         .ring-progress { transition: stroke-dashoffset 0.6s ease; }
         .locked-blur { filter: blur(4px); pointer-events: none; user-select: none; }
     </style>
@@ -80,10 +89,7 @@
                     <img id="q-image" src="" alt="" onload="document.getElementById('q-loader').style.display='none';this.style.opacity='1'" onerror="this.src='https://placehold.co/800x450?text=STAX';document.getElementById('q-loader').style.display='none';this.style.opacity='1'" class="w-full h-full object-cover transition-opacity duration-500 opacity-0 relative z-10">
                 </div>
                 <h2 id="q-text" class="text-xl font-bold text-gray-900 mb-8 leading-snug break-keep fade-in"></h2>
-                <div class="space-y-3 fade-in">
-                    <button onclick="nextQuestion('A')" class="btn-option w-full border border-gray-200 bg-white p-5 rounded-2xl text-left hover:border-blue-500 hover:shadow-md transition-all group"><div class="flex items-start"><span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center mr-3 text-[10px] font-bold group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white transition-colors">A</span><span id="opt-a" class="text-gray-700 font-medium text-sm leading-relaxed group-hover:text-gray-900"></span></div></button>
-                    <button onclick="nextQuestion('B')" class="btn-option w-full border border-gray-200 bg-white p-5 rounded-2xl text-left hover:border-blue-500 hover:shadow-md transition-all group"><div class="flex items-start"><span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center mr-3 text-[10px] font-bold group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white transition-colors">B</span><span id="opt-b" class="text-gray-700 font-medium text-sm leading-relaxed group-hover:text-gray-900"></span></div></button>
-                </div>
+                <div id="q-options" class="space-y-3 fade-in"></div>
             </div>
         </div>
 
@@ -340,8 +346,19 @@ function renderQuestion(){
     ld.style.display='block';img.style.opacity='0';img.src=questionImages[currentStep];
     img.onload=()=>{ld.style.display='none';img.style.opacity='1'};
     document.getElementById('q-text').innerText=q.q;
-    document.getElementById('opt-a').innerText=q.A.t;
-    document.getElementById('opt-b').innerText=q.B.t;
+
+    const container=document.getElementById('q-options');
+    container.innerHTML=
+        makeQuizBtn('A',q.A.t)+makeQuizBtn('B',q.B.t);
+}
+
+function makeQuizBtn(label,text){
+    return `<button onclick="nextQuestion('${label}')" class="quiz-btn w-full border border-gray-200 bg-white p-5 rounded-2xl text-left">
+        <div class="flex items-start">
+            <span class="qb-circle flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center mr-3 text-[10px] font-bold transition-colors">${label}</span>
+            <span class="qb-text text-gray-700 font-medium text-sm leading-relaxed transition-colors">${text}</span>
+        </div>
+    </button>`;
 }
 
 function nextQuestion(c){
