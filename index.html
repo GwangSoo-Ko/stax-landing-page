@@ -329,10 +329,52 @@ const surveyQs = [
 
 let currentStep=0, scores={E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, choiceHistory=[];
 let sStep=0, sData={}, currentMbtiType="", currentMbtiTitle="";
+let isNavigating=false;
+
+function pushNav(screen,step){
+    if(!isNavigating) history.pushState({screen,step},'');
+}
+
+window.addEventListener('popstate',function(e){
+    isNavigating=true;
+    const s=e.state;
+    if(!s){
+        showScreen('start-screen');
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('loading-screen').classList.add('hidden');
+        isNavigating=false;
+        return;
+    }
+    if(s.screen==='quiz'){
+        if(s.step<currentStep&&currentStep>0){
+            currentStep--;
+            const t=choiceHistory.pop();
+            scores[t]--;
+            showScreen('quiz-screen');
+            renderQuestion();
+        } else {
+            showScreen('start-screen');
+            document.getElementById('quiz-screen').classList.add('hidden');
+        }
+    } else if(s.screen==='result'){
+        showScreen('result-screen');
+    } else if(s.screen==='survey'){
+        if(sStep>0){sStep--;renderSurveyQ();}
+    }
+    isNavigating=false;
+});
+
+function showScreen(id){
+    ['start-screen','quiz-screen','loading-screen','result-screen'].forEach(s=>{
+        const el=document.getElementById(s);
+        if(el) el.classList.toggle('hidden',s!==id);
+    });
+}
 
 function startQuiz(){
-    document.getElementById('start-screen').classList.add('hidden');
-    document.getElementById('quiz-screen').classList.remove('hidden');
+    pushNav('quiz',0);
+    showScreen('quiz-screen');
     renderQuestion();
 }
 
@@ -365,20 +407,21 @@ function nextQuestion(c){
     const q=questions[currentStep];
     const t=(c==='A')?q.A.type:q.B.type;
     scores[t]++;choiceHistory.push(t);currentStep++;
-    currentStep<questions.length?renderQuestion():showLoading();
+    if(currentStep<questions.length){pushNav('quiz',currentStep);renderQuestion();}
+    else showLoading();
 }
 
 function prevQuestion(){
-    if(currentStep>0){currentStep--;const t=choiceHistory.pop();scores[t]--;renderQuestion();}
+    if(currentStep>0){history.back();}
 }
 
 function showLoading(){
-    document.getElementById('quiz-screen').classList.add('hidden');
-    document.getElementById('loading-screen').classList.remove('hidden');
+    showScreen('loading-screen');
     setTimeout(showResult,2500);
 }
 
 function showResult(){
+    pushNav('result',0);
     const mbti=(scores.E>=scores.I?'E':'I')+(scores.S>=scores.N?'S':'N')+(scores.T>=scores.F?'T':'F')+(scores.J>=scores.P?'J':'P');
     const d=results[mbti]; currentMbtiType=mbti; currentMbtiTitle=d.title;
     document.getElementById('res-mbti').innerText=mbti;
@@ -392,8 +435,7 @@ function showResult(){
     document.getElementById('celeb-desc').innerText=`"${d.celebDesc}"`;
     document.getElementById('celeb-reason').innerText=d.celebReason;
     document.getElementById('res-strategy').innerHTML=d.strategy.map(s=>`<li class="flex items-start"><span class="text-blue-400 mr-2">\u2713</span><span>${s}</span></li>`).join('');
-    document.getElementById('loading-screen').classList.add('hidden');
-    document.getElementById('result-screen').classList.remove('hidden');
+    showScreen('result-screen');
     drawRadarChart(d.stats);
 }
 
@@ -418,7 +460,7 @@ function renderSurveyQ(){
 }
 
 function answerSurvey(key,val){
-    sData[key]=val; sStep++; renderSurveyQ();
+    sData[key]=val; sStep++; pushNav('survey',sStep); renderSurveyQ();
 }
 
 function surveyComplete(){
